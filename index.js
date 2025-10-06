@@ -1,23 +1,22 @@
-// index.js
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import pkg from "pg";
 
 dotenv.config();
+
 const { Pool } = pkg;
 
-const app = express();
-app.use(cors());
-app.use(express.json());
-
-// Connexion à PostgreSQL (Render)
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
   ssl: { rejectUnauthorized: false },
 });
 
-// Test de la base
+const app = express();
+app.use(cors());
+app.use(express.json());
+
+// Test de connexion à la base
 app.get("/db-test", async (req, res) => {
   try {
     const result = await pool.query("SELECT NOW()");
@@ -42,6 +41,7 @@ app.post("/api/payment", (req, res) => {
   });
 });
 
-// Démarrage du serveur
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`✅ BafingPay API en cours sur le port ${PORT}`));
+app.listen(PORT, () =>
+  console.log(`✅ BafingPay API en cours sur le port ${PORT}`)
+);
