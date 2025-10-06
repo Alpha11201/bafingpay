@@ -1,43 +1,47 @@
+// index.js
+import express from "express";
+import cors from "cors";
+import dotenv from "dotenv";
+import pkg from "pg";
 
-require('dotenv').config();
-const express = require('express');
-const bodyParser = require('body-parser');
-const payments = require('./payments');
-const db = require('./db');
-const { verifySignatureMiddleware } = require('./security');
+dotenv.config();
+const { Pool } = pkg;
 
 const app = express();
-app.use(bodyParser.json());
+app.use(cors());
+app.use(express.json());
 
-app.get('/', (req, res) => res.send('Bafing Pay API OK'));
+// Connexion à PostgreSQL (Render)
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: { rejectUnauthorized: false },
+});
 
-app.post('/api/pay', async (req, res) => {
+// Test de la base
+app.get("/db-test", async (req, res) => {
   try {
-    const result = await payments.initiatePayment(req.body);
-    res.json(result);
+    const result = await pool.query("SELECT NOW()");
+    res.json({ status: "connected", time: result.rows[0].now });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ error: "Database connection failed" });
   }
 });
 
-app.get('/api/status/:txid', async (req, res) => {
-  try {
-    const tx = await db.getTransaction(req.params.txid);
-    if (!tx) return res.status(404).json({ error: 'Transaction not found' });
-    res.json(tx);
-  } catch (e) { res.status(500).json({ error: e.message }) }
+// Route de base
+app.get("/", (req, res) => {
+  res.send("🚀 BafingPay API en ligne et prête !");
 });
 
-app.post('/api/callback/:provider', verifySignatureMiddleware, async (req, res) => {
-  try {
-    await payments.handleProviderCallback(req.params.provider, req.body);
-    res.status(200).send('OK');
-  } catch (e) {
-    console.error(e);
-    res.status(500).send('ERR');
-  }
+// Exemple de route pour les paiements
+app.post("/api/payment", (req, res) => {
+  const { amount, operator } = req.body;
+  res.json({
+    message: `Paiement de ${amount} FCFA via ${operator} reçu.`,
+    status: "success",
+  });
 });
 
-const port = process.env.PORT || 3000;
-app.listen(port, () => console.log(`Bafing Pay listening on port ${port}`));
+// Démarrage du serveur
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => console.log(`✅ BafingPay API en cours sur le port ${PORT}`));
