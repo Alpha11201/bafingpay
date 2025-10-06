@@ -1,47 +1,30 @@
 import express from "express";
-import cors from "cors";
 import dotenv from "dotenv";
-import pkg from "pg";
+
+import orangeRoutes from "./routes/orange.js";
+import waveRoutes from "./routes/wave.js";
+import moovRoutes from "./routes/moov.js";
+import freeRoutes from "./routes/free.js";
+import corisRoutes from "./routes/coris.js";
+import ecobankRoutes from "./routes/ecobank.js";
 
 dotenv.config();
-
-const { Pool } = pkg;
-
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  ssl: { rejectUnauthorized: false },
-});
-
 const app = express();
-app.use(cors());
+
 app.use(express.json());
 
-// Test de connexion à la base
-app.get("/db-test", async (req, res) => {
-  try {
-    const result = await pool.query("SELECT NOW()");
-    res.json({ status: "connected", time: result.rows[0].now });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Database connection failed" });
-  }
-});
-
-// Route de base
 app.get("/", (req, res) => {
-  res.send("🚀 BafingPay API en ligne et prête !");
+  res.send("🚀 Bienvenue sur BafingPay API — toutes les passerelles de paiement prêtes !");
 });
 
-// Exemple de route pour les paiements
-app.post("/api/payment", (req, res) => {
-  const { amount, operator } = req.body;
-  res.json({
-    message: `Paiement de ${amount} FCFA via ${operator} reçu.`,
-    status: "success",
-  });
-});
+app.use("/api/orange", orangeRoutes);
+app.use("/api/wave", waveRoutes);
+app.use("/api/moov", moovRoutes);
+app.use("/api/free", freeRoutes);
+app.use("/api/coris", corisRoutes);
+app.use("/api/ecobank", ecobankRoutes);
 
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () =>
-  console.log(`✅ BafingPay API en cours sur le port ${PORT}`)
-);
+const PORT = process.env.PORT || 10000;
+app.listen(PORT, () => {
+  console.log(`✅ BafingPay API en cours sur le port ${PORT}`);
+});
