@@ -7,6 +7,7 @@ import moovRoutes from "./routes/moov.js";
 import freeRoutes from "./routes/free.js";
 import corisRoutes from "./routes/coris.js";
 import ecobankRoutes from "./routes/ecobank.js";
+import cryptoRoutes from "./routes/crypto.js"; // ← ajouter cette ligne
 
 dotenv.config();
 const app = express();
@@ -23,6 +24,7 @@ app.use("/api/moov", moovRoutes);
 app.use("/api/free", freeRoutes);
 app.use("/api/coris", corisRoutes);
 app.use("/api/ecobank", ecobankRoutes);
+app.use("/api/crypto", cryptoRoutes); // ← ajouter cette ligne
 
 const PORT = process.env.PORT || 10000;
 app.listen(PORT, () => {
