@@ -14,7 +14,7 @@ export const createSolanaWallet = () => {
 // Exemple : envoyer SOL
 export const sendSolanaPayment = async ({ fromSecretKey, toPublicKey, amount }) => {
   try {
-    const fromKeypair = Keypair.fromSecretKey(Buffer.from(fromSecretKey, "hex"));
+    const fromKeypair = Keypair.fromSecretKey(Uint8Array.from(JSON.parse(fromSecretKey)));
     const transaction = new Transaction().add(
       SystemProgram.transfer({
         fromPubkey: fromKeypair.publicKey,
